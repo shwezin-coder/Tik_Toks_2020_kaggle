@@ -1,24 +1,24 @@
-Project Title: TikTok Popular Songs Analysis - 2020
+# Project Title: TikTok Popular Songs Analysis - 2020
 
-Project Overview:
+## Project Overview:
 
 The TikTok Popular Songs Analysis for 2020 is a comprehensive exploration of the music landscape on TikTok during that year. The project encompassed three core sections: the assessment of top 10 artists, tracks, and albums, detailed analyses of songs from these top-ranking categories, and the identification of song types that resonated most with the TikTok audience.
 
-Key Aspects Analyzed:
+### Key Aspects Analyzed:
 
-Top 10 Artists, Tracks, and Albums:
+#### Top 10 Artists, Tracks, and Albums:
 
 Identified and examined the top 10 artists, tracks, and albums that held a prominent position on TikTok during 2020.
 ![Dashboard](https://github.com/shwezin-coder/Tik_Toks_2020_kaggle/assets/70483157/97d7f28a-d62a-40ae-a497-199cfc526005)
 
-Detailed Analysis of Top 10 Songs:
+#### Detailed Analysis of Top 10 Songs:
 
 Utilized two critical Key Performance Indicators (KPIs), track and artist population, to delve deep into the songs within the top 10 ranking. This approach provided insights into the songs' reach and the influence of their creators.
 ![Artist_Detail](https://github.com/shwezin-coder/Tik_Toks_2020_kaggle/assets/70483157/887c398c-15a8-4562-9cab-7719519a6432)
 
 ![Album_Detail](https://github.com/shwezin-coder/Tik_Toks_2020_kaggle/assets/70483157/55194c82-6e1a-4fb8-825f-479b8e7b2d4f)
 
-Music Attributes Analyzed:
+#### Music Attributes Analyzed:
 
 The analysis covered a diverse set of music attributes, including but not limited to:
 Danceability
