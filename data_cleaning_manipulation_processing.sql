@@ -19,10 +19,156 @@ FROM tbl_artist_records),
 tbl_top_ten_records AS(SELECT records_artist_name,total_trackpopulation, total_artistpopulation
 FROM tbl_ranking
 WHERE track_ranking <= 10 OR artist_ranking <= 10)
-SELECT records_artist_name,total_trackpopulation, total_artistpopulation, danceability,energy,loudness,
-mode,key_node,speechiness,acousticness,instrumentalness,liveness,valence,tempo,time_signature,duration_ms
+SELECT records_artist_name,track_name,album,total_trackpopulation, total_artistpopulation, artist_pop,track_pop,
+CASE WHEN danceability BETWEEN 0 AND 0.1 THEN 'low dance'
+WHEN danceability BETWEEN 0.1 AND 0.5 THEN 'moderate dance'
+ELSE 'high dance' END [danceability],
+CASE WHEN energy BETWEEN 0 AND  0.1 THEN 'classical music or some acoustic ballads'
+WHEN energy BETWEEN 0.1 AND  0.5 THEN 'pop, rock, or jazz'
+ELSE 'heavy metal, electronic dance music (EDM), or punk rock.' END [genre],
+CASE WHEN loudness BETWEEN -2 AND -1 THEN -1
+WHEN loudness BETWEEN -3 AND -2 THEN -2
+WHEN loudness BETWEEN -4 AND -3 THEN -3
+WHEN loudness BETWEEN -5 AND -4 THEN -4
+WHEN loudness BETWEEN -6 AND -5 THEN -5
+WHEN loudness BETWEEN -7 AND -6 THEN -6
+WHEN loudness BETWEEN -8 AND -7 THEN -7
+WHEN loudness BETWEEN -9 AND -8 THEN -8
+ELSE 
+-9 END [loudness],
+CASE WHEN key_node = 0 THEN 'C'
+WHEN key_node = 1 THEN 'C#'
+WHEN key_node = 2 THEN 'D'
+WHEN key_node = 3 THEN 'D#'
+WHEN key_node = 4 THEN 'E'
+WHEN key_node = 5 THEN 'F'
+WHEN key_node = 6 THEN 'F#'
+WHEN key_node = 7 THEN 'G'
+WHEN key_node = 8 THEN 'G#'
+WHEN key_node = 9 THEN 'A'
+WHEN key_node = 10 THEN 'A#'
+ELSE 'B' END [Key],
+CASE WHEN mode = 0 THEN 'minor'
+ELSE 'major' END [mode],
+CASE WHEN speechiness BETWEEN 0 AND 0.1 THEN 'low speechiness'
+WHEN speechiness BETWEEN 0.1 AND 0.5 THEN 'moderate speechiness'
+ELSE 'high speechiness'
+END [speechiness],
+CASE WHEN acousticness BETWEEN 0 AND 0.1 THEN 'low acousticness'
+WHEN acousticness BETWEEN 0.1 AND 0.5 THEN 'moderate acousticness'
+ELSE 'high acousticness'
+END [acousticness],
+CASE WHEN instrumentalness BETWEEN 0 AND 0.1 THEN 'low instrumentalness'
+WHEN instrumentalness BETWEEN 0.1 AND 0.5 THEN 'moderate instrumentalness'
+ELSE 'high instrumentalness'
+END [instrumentalness],
+CASE WHEN valence BETWEEN 0 AND 0.1 THEN 'low valence'
+WHEN valence BETWEEN 0.1 AND 0.5 THEN 'moderate valence'
+ELSE 'high valence' END [valence],
+CASE WHEN time_signature = 1 THEN 'Simple Time'
+WHEN time_signature = 2 THEN 'Duple Time'
+WHEN time_signature = 3 THEN 'Triple Time'
+WHEN time_signature = 4 THEN 'Quadruple Time'
+ELSE 'Quintuple Time' END [Time Signature],
+CASE WHEN duration_ms BETWEEN 0.5 AND 1 THEN '-1'
+WHEN duration_ms BETWEEN 1 AND 2 THEN '+1'
+WHEN duration_ms BETWEEN 2 AND 3 THEN '+2'
+WHEN duration_ms BETWEEN 3 AND 4 THEN '+3'
+WHEN duration_ms BETWEEN 4 AND 5 THEN '+4'
+WHEN duration_ms BETWEEN 5 AND 6 THEN '+5'
+WHEN duration_ms BETWEEN 6 AND 7 THEN '+6'
+ELSE '+8' END [Duration],
+CASE WHEN tempo BETWEEN 76 AND 108 THEN 'Andate'
+WHEN tempo BETWEEN 108 AND 120 THEN 'Moderato'
+WHEN tempo BETWEEN 120 AND 168 THEN 'Allegro'
+WHEN tempo BETWEEN 168 AND 176 THEN 'Vivace'
+WHEN tempo BETWEEN 176 AND 200 THEN 'Presto'
+ELSE 'Prestissimo' END [tempo]
 FROM tbl_top_ten_records tr, tiktoksongs2020 ts
 WHERE tr.records_artist_name = ts.artist_name;
+
+-----Top 10 Albums -------
+CREATE VIEW top_ten_Albums_records AS
+WITH tbl_album_records AS (SELECT DISTINCT SUM(track_pop)
+OVER (PARTITION BY album) [total_trackpopulation],
+SUM(artist_pop)
+OVER (PARTITION BY album) [total_artistpopulation],
+album [records_album_name]
+FROM tiktoksongs2020),
+tbl_ranking AS(SELECT records_album_name,RANK() OVER (ORDER BY total_trackpopulation DESC) AS track_ranking,
+RANK() OVER (ORDER BY total_artistpopulation DESC) AS artist_ranking, 
+total_trackpopulation, total_artistpopulation
+FROM tbl_album_records),
+tbl_top_ten_records AS(SELECT records_album_name,total_trackpopulation, total_artistpopulation
+FROM tbl_ranking
+WHERE track_ranking <= 10 OR artist_ranking <= 10)
+SELECT records_album_name,artist_name,track_name,total_trackpopulation, total_artistpopulation, artist_pop,track_pop,
+CASE WHEN danceability BETWEEN 0 AND 0.1 THEN 'low dance'
+WHEN danceability BETWEEN 0.1 AND 0.5 THEN 'moderate dance'
+ELSE 'high dance' END [danceability],
+CASE WHEN energy BETWEEN 0 AND  0.1 THEN 'classical music or some acoustic ballads'
+WHEN energy BETWEEN 0.1 AND  0.5 THEN 'pop, rock, or jazz'
+ELSE 'heavy metal, electronic dance music (EDM), or punk rock.' END [genre],
+CASE WHEN loudness BETWEEN -2 AND -1 THEN -1
+WHEN loudness BETWEEN -3 AND -2 THEN -2
+WHEN loudness BETWEEN -4 AND -3 THEN -3
+WHEN loudness BETWEEN -5 AND -4 THEN -4
+WHEN loudness BETWEEN -6 AND -5 THEN -5
+WHEN loudness BETWEEN -7 AND -6 THEN -6
+WHEN loudness BETWEEN -8 AND -7 THEN -7
+WHEN loudness BETWEEN -9 AND -8 THEN -8
+ELSE 
+-9 END [loudness],
+CASE WHEN key_node = 0 THEN 'C'
+WHEN key_node = 1 THEN 'C#'
+WHEN key_node = 2 THEN 'D'
+WHEN key_node = 3 THEN 'D#'
+WHEN key_node = 4 THEN 'E'
+WHEN key_node = 5 THEN 'F'
+WHEN key_node = 6 THEN 'F#'
+WHEN key_node = 7 THEN 'G'
+WHEN key_node = 8 THEN 'G#'
+WHEN key_node = 9 THEN 'A'
+WHEN key_node = 10 THEN 'A#'
+ELSE 'B' END [Key],
+CASE WHEN mode = 0 THEN 'minor'
+ELSE 'major' END [mode],
+CASE WHEN speechiness BETWEEN 0 AND 0.1 THEN 'low speechiness'
+WHEN speechiness BETWEEN 0.1 AND 0.5 THEN 'moderate speechiness'
+ELSE 'high speechiness'
+END [speechiness],
+CASE WHEN acousticness BETWEEN 0 AND 0.1 THEN 'low acousticness'
+WHEN acousticness BETWEEN 0.1 AND 0.5 THEN 'moderate acousticness'
+ELSE 'high acousticness'
+END [acousticness],
+CASE WHEN instrumentalness BETWEEN 0 AND 0.1 THEN 'low instrumentalness'
+WHEN instrumentalness BETWEEN 0.1 AND 0.5 THEN 'moderate instrumentalness'
+ELSE 'high instrumentalness'
+END [instrumentalness],
+CASE WHEN valence BETWEEN 0 AND 0.1 THEN 'low valence'
+WHEN valence BETWEEN 0.1 AND 0.5 THEN 'moderate valence'
+ELSE 'high valence' END [valence],
+CASE WHEN time_signature = 1 THEN 'Simple Time'
+WHEN time_signature = 2 THEN 'Duple Time'
+WHEN time_signature = 3 THEN 'Triple Time'
+WHEN time_signature = 4 THEN 'Quadruple Time'
+ELSE 'Quintuple Time' END [Time Signature],
+CASE WHEN duration_ms BETWEEN 0.5 AND 1 THEN '-1'
+WHEN duration_ms BETWEEN 1 AND 2 THEN '+1'
+WHEN duration_ms BETWEEN 2 AND 3 THEN '+2'
+WHEN duration_ms BETWEEN 3 AND 4 THEN '+3'
+WHEN duration_ms BETWEEN 4 AND 5 THEN '+4'
+WHEN duration_ms BETWEEN 5 AND 6 THEN '+5'
+WHEN duration_ms BETWEEN 6 AND 7 THEN '+6'
+ELSE '+8' END [Duration],
+CASE WHEN tempo BETWEEN 76 AND 108 THEN 'Andate'
+WHEN tempo BETWEEN 108 AND 120 THEN 'Moderato'
+WHEN tempo BETWEEN 120 AND 168 THEN 'Allegro'
+WHEN tempo BETWEEN 168 AND 176 THEN 'Vivace'
+WHEN tempo BETWEEN 176 AND 200 THEN 'Presto'
+ELSE 'Prestissimo' END [tempo]
+FROM tbl_top_ten_records tr, tiktoksongs2020 ts
+WHERE tr.records_album_name = ts.album;
 
 -----Top 10 Tracks -------
 CREATE VIEW top_ten_tracks_records AS
@@ -39,8 +185,71 @@ FROM tbl_track_records),
 tbl_top_ten_records AS(SELECT records_track_name,total_trackpopulation, total_artistpopulation
 FROM tbl_ranking
 WHERE track_ranking <= 10 OR artist_ranking <= 10)
-SELECT records_track_name,total_trackpopulation, total_artistpopulation, danceability,energy,loudness,
-mode,key_node,speechiness,acousticness,instrumentalness,liveness,valence,tempo,time_signature,duration_ms
+SELECT records_track_name,artist_name,album,total_trackpopulation, total_artistpopulation, artist_pop,track_pop,
+CASE WHEN danceability BETWEEN 0 AND 0.1 THEN 'low dance'
+WHEN danceability BETWEEN 0.1 AND 0.5 THEN 'moderate dance'
+ELSE 'high dance' END [danceability],
+CASE WHEN energy BETWEEN 0 AND  0.1 THEN 'classical music or some acoustic ballads'
+WHEN energy BETWEEN 0.1 AND  0.5 THEN 'pop, rock, or jazz'
+ELSE 'heavy metal, electronic dance music (EDM), or punk rock.' END [genre],
+CASE WHEN loudness BETWEEN -2 AND -1 THEN -1
+WHEN loudness BETWEEN -3 AND -2 THEN -2
+WHEN loudness BETWEEN -4 AND -3 THEN -3
+WHEN loudness BETWEEN -5 AND -4 THEN -4
+WHEN loudness BETWEEN -6 AND -5 THEN -5
+WHEN loudness BETWEEN -7 AND -6 THEN -6
+WHEN loudness BETWEEN -8 AND -7 THEN -7
+WHEN loudness BETWEEN -9 AND -8 THEN -8
+ELSE 
+-9 END [loudness],
+CASE WHEN key_node = 0 THEN 'C'
+WHEN key_node = 1 THEN 'C#'
+WHEN key_node = 2 THEN 'D'
+WHEN key_node = 3 THEN 'D#'
+WHEN key_node = 4 THEN 'E'
+WHEN key_node = 5 THEN 'F'
+WHEN key_node = 6 THEN 'F#'
+WHEN key_node = 7 THEN 'G'
+WHEN key_node = 8 THEN 'G#'
+WHEN key_node = 9 THEN 'A'
+WHEN key_node = 10 THEN 'A#'
+ELSE 'B' END [Key],
+CASE WHEN mode = 0 THEN 'minor'
+ELSE 'major' END [mode],
+CASE WHEN speechiness BETWEEN 0 AND 0.1 THEN 'low speechiness'
+WHEN speechiness BETWEEN 0.1 AND 0.5 THEN 'moderate speechiness'
+ELSE 'high speechiness'
+END [speechiness],
+CASE WHEN acousticness BETWEEN 0 AND 0.1 THEN 'low acousticness'
+WHEN acousticness BETWEEN 0.1 AND 0.5 THEN 'moderate acousticness'
+ELSE 'high acousticness'
+END [acousticness],
+CASE WHEN instrumentalness BETWEEN 0 AND 0.1 THEN 'low instrumentalness'
+WHEN instrumentalness BETWEEN 0.1 AND 0.5 THEN 'moderate instrumentalness'
+ELSE 'high instrumentalness'
+END [instrumentalness],
+CASE WHEN valence BETWEEN 0 AND 0.1 THEN 'low valence'
+WHEN valence BETWEEN 0.1 AND 0.5 THEN 'moderate valence'
+ELSE 'high valence' END [valence],
+CASE WHEN time_signature = 1 THEN 'Simple Time'
+WHEN time_signature = 2 THEN 'Duple Time'
+WHEN time_signature = 3 THEN 'Triple Time'
+WHEN time_signature = 4 THEN 'Quadruple Time'
+ELSE 'Quintuple Time' END [Time Signature],
+CASE WHEN duration_ms BETWEEN 0.5 AND 1 THEN '-1'
+WHEN duration_ms BETWEEN 1 AND 2 THEN '+1'
+WHEN duration_ms BETWEEN 2 AND 3 THEN '+2'
+WHEN duration_ms BETWEEN 3 AND 4 THEN '+3'
+WHEN duration_ms BETWEEN 4 AND 5 THEN '+4'
+WHEN duration_ms BETWEEN 5 AND 6 THEN '+5'
+WHEN duration_ms BETWEEN 6 AND 7 THEN '+6'
+ELSE '+8' END [Duration],
+CASE WHEN tempo BETWEEN 76 AND 108 THEN 'Andate'
+WHEN tempo BETWEEN 108 AND 120 THEN 'Moderato'
+WHEN tempo BETWEEN 120 AND 168 THEN 'Allegro'
+WHEN tempo BETWEEN 168 AND 176 THEN 'Vivace'
+WHEN tempo BETWEEN 176 AND 200 THEN 'Presto'
+ELSE 'Prestissimo' END [tempo]
 FROM tbl_top_ten_records tr, tiktoksongs2020 ts
 WHERE tr.records_track_name = ts.track_name;
 
@@ -186,7 +395,7 @@ OVER (PARTITION BY instrumentalness) [Artist Population],
 instrumentalness
 FROM tbl_instrumentalness;
 
------Change Valence Value-----
+-----Valence Chart-----
 CREATE VIEW valence AS
 WITH tbl_valence AS (SELECT
 CASE WHEN valence BETWEEN 0 AND 0.1 THEN 'low valence'
@@ -235,6 +444,15 @@ OVER (PARTITION BY duration_tbl.duration) [Artist Population],
 duration_tbl.duration 
 FROM duration_tbl;
 
+SELECT DISTINCT SUM(track_pop) 
+OVER (PARTITION BY duration_ms) [Track Population],
+SUM(artist_pop) 
+OVER (PARTITION BY duration_ms) [Artist Population], 
+duration_ms 
+FROM tiktoksongs2020
+ORDER BY 1 DESC,2 DESC;
+
+
 /*
 Adagio: 66-76 BPM
 Andante: 76-108 BPM
@@ -260,4 +478,75 @@ SUM(tempo_tbl.artist_pop)
 OVER (PARTITION BY tempo_tbl.tempo) [Artist Population], 
 tempo_tbl.tempo
 FROM tempo_tbl;
+
+-----Which type of songs was popular in 2023-----
+CREATE VIEW tbl_popular_analysis AS
+SELECT track_id,track_name, artist_name, artist_pop, track_pop, album,
+CASE WHEN danceability BETWEEN 0 AND 0.1 THEN 'low dance'
+WHEN danceability BETWEEN 0.1 AND 0.5 THEN 'moderate dance'
+ELSE 'high dance' END [danceability],
+CASE WHEN energy BETWEEN 0 AND  0.1 THEN 'classical music or some acoustic ballads'
+WHEN energy BETWEEN 0.1 AND  0.5 THEN 'pop, rock, or jazz'
+ELSE 'heavy metal, electronic dance music (EDM), or punk rock.' END [genre],
+CASE WHEN loudness BETWEEN -2 AND -1 THEN -1
+WHEN loudness BETWEEN -3 AND -2 THEN -2
+WHEN loudness BETWEEN -4 AND -3 THEN -3
+WHEN loudness BETWEEN -5 AND -4 THEN -4
+WHEN loudness BETWEEN -6 AND -5 THEN -5
+WHEN loudness BETWEEN -7 AND -6 THEN -6
+WHEN loudness BETWEEN -8 AND -7 THEN -7
+WHEN loudness BETWEEN -9 AND -8 THEN -8
+ELSE 
+-9 END [loudness],
+CASE WHEN key_node = 0 THEN 'C'
+WHEN key_node = 1 THEN 'C#'
+WHEN key_node = 2 THEN 'D'
+WHEN key_node = 3 THEN 'D#'
+WHEN key_node = 4 THEN 'E'
+WHEN key_node = 5 THEN 'F'
+WHEN key_node = 6 THEN 'F#'
+WHEN key_node = 7 THEN 'G'
+WHEN key_node = 8 THEN 'G#'
+WHEN key_node = 9 THEN 'A'
+WHEN key_node = 10 THEN 'A#'
+ELSE 'B' END [Key],
+CASE WHEN mode = 0 THEN 'minor'
+ELSE 'major' END [mode],
+CASE WHEN speechiness BETWEEN 0 AND 0.1 THEN 'low speechiness'
+WHEN speechiness BETWEEN 0.1 AND 0.5 THEN 'moderate speechiness'
+ELSE 'high speechiness'
+END [speechiness],
+CASE WHEN acousticness BETWEEN 0 AND 0.1 THEN 'low acousticness'
+WHEN acousticness BETWEEN 0.1 AND 0.5 THEN 'moderate acousticness'
+ELSE 'high acousticness'
+END [acousticness],
+CASE WHEN instrumentalness BETWEEN 0 AND 0.1 THEN 'low instrumentalness'
+WHEN instrumentalness BETWEEN 0.1 AND 0.5 THEN 'moderate instrumentalness'
+ELSE 'high instrumentalness'
+END [instrumentalness],
+CASE WHEN valence BETWEEN 0 AND 0.1 THEN 'low valence'
+WHEN valence BETWEEN 0.1 AND 0.5 THEN 'moderate valence'
+ELSE 'high valence' END [valence],
+CASE WHEN time_signature = 1 THEN 'Simple Time'
+WHEN time_signature = 2 THEN 'Duple Time'
+WHEN time_signature = 3 THEN 'Triple Time'
+WHEN time_signature = 4 THEN 'Quadruple Time'
+ELSE 'Quintuple Time' END [Time Signature],
+CASE WHEN duration_ms BETWEEN 0.5 AND 1 THEN '-1'
+WHEN duration_ms BETWEEN 1 AND 2 THEN '+1'
+WHEN duration_ms BETWEEN 2 AND 3 THEN '+2'
+WHEN duration_ms BETWEEN 3 AND 4 THEN '+3'
+WHEN duration_ms BETWEEN 4 AND 5 THEN '+4'
+WHEN duration_ms BETWEEN 5 AND 6 THEN '+5'
+WHEN duration_ms BETWEEN 6 AND 7 THEN '+6'
+ELSE '+8' END [Duration],
+CASE WHEN tempo BETWEEN 76 AND 108 THEN 'Andate'
+WHEN tempo BETWEEN 108 AND 120 THEN 'Moderato'
+WHEN tempo BETWEEN 120 AND 168 THEN 'Allegro'
+WHEN tempo BETWEEN 168 AND 176 THEN 'Vivace'
+WHEN tempo BETWEEN 176 AND 200 THEN 'Presto'
+ELSE 'Prestissimo' END [tempo]
+FROM tiktoksongs2020;
+
+
 
